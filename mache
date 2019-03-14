@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+
+checksum() {
+  sha1sum - < <({
+    cat "$1"
+    echo "$2"
+  }) | cut -f 1 -d ' '
+}
+
+mkdir -p ~/.mache &> /dev/null
+
+file="$HOME/.mache/$(checksum "$@")"
+
+(>&2 printf "mache: %s %s %s\n" "$1" "$2" "$file")
+test -f "$file" || {
+  $1 > "$file"
+  chmod -w "$file"
+} || rm "$file"
+cat "$file"
