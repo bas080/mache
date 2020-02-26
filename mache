@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
 
 checksum() {
   sha1sum - < <({
@@ -9,13 +9,24 @@ checksum() {
   }) | cut -f 1 -d ' '
 }
 
-mkdir -p ~/.mache &> /dev/null
-
+tmp="$(mktemp)"
 file="$HOME/.mache/$(checksum "$@")"
 
-(>&2 printf "mache: %s %s %s\n" "$1" "$2" "$file")
+{
+  mkdir -p ~/.mache &> /dev/null
+  tail -n +2 "$1" > "$tmp"
+  chmod u=rx "$tmp"
+}
+
+#(>&2 printf "mache: %s %s %s\n" "$1" "$2" "$file")
 test -f "$file" || {
-  $1 > "$file"
-  chmod -w "$file"
-} || rm "$file"
+  touch "$file"
+  ($tmp > "$file" && chmod -w "$file") || {
+    >&2 printf "mache: failed\n"
+    rm "$file"
+    exit 1
+  }
+}
+
 cat "$file"
+rm -f "$tmp"
