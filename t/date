@@ -1,0 +1,4 @@
+#!./mache
+#!/usr/bin/env bash
+
+date
