@@ -18,6 +18,11 @@ file="$HOME/.mache/$(checksum "$@")"
   chmod u=rx "$tmp"
 }
 
+[ ! -z ${NOCACHE:-} ] && {
+  $tmp
+  exit
+}
+
 #(>&2 printf "mache: %s %s %s\n" "$1" "$2" "$file")
 test -f "$file" || {
   touch "$file"
