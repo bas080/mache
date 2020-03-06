@@ -34,8 +34,8 @@ quote the complete command.
 ```
 $ mache ./t/echo hello
 hello
-$ mache ./t/echo hello "vr  6 mrt 2020 18:39:11 CET"
-hello vr 6 mrt 2020 18:39:11 CET
+$ mache ./t/echo hello "vr  6 mrt 2020 18:46:48 CET"
+hello vr 6 mrt 2020 18:46:48 CET
 ```
 
 You can also make a mache script. These scripts will cache by default. Simply
@@ -52,7 +52,7 @@ We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
 ```
 $ ./t/date
-vr  6 mrt 2020 18:32:44 CET
+vr  6 mrt 2020 18:46:31 CET
 ```
 
 
@@ -60,10 +60,10 @@ By default mache will use the cache if present. You can remake the cache:
 
 ```
 $ REMACHE=1 ./t/date
-vr  6 mrt 2020 18:39:11 CET
-sleep 2
+vr  6 mrt 2020 18:46:48 CET
+sleep 2 
 $ REMACHE=1 ./t/date
-vr  6 mrt 2020 18:39:11 CET
+vr  6 mrt 2020 18:46:50 CET
 ```
 
 A mache script does not cache when the script exits with non zero.

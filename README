@@ -61,7 +61,7 @@ By default mache will use the cache if present. You can remake the cache:
 \`\`\`
 $ REMACHE=1 ./t/date
 $(REMACHE=1 ./t/date)
-sleep 2
+sleep 2 $(sleep 2)
 $ REMACHE=1 ./t/date
 $(REMACHE=1 ./t/date)
 \`\`\`
