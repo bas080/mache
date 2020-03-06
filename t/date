@@ -1,4 +1,4 @@
-#!./mache
+#!/usr/bin/env mache
 #!/usr/bin/env bash
 
-date
+date "$@"

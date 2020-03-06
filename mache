@@ -1,36 +1,76 @@
 #!/usr/bin/env bash
 
+# author:  Bas Huis
+# website: https://github.com/bas080/mache
+# created: Fri Mar  6 18:30:22 CET 2020
+# changed: Fri Mar  6 18:19:28 CET 2020
+# license: GNU General Public License 3.0
+
 set -Eeuo pipefail
 
-checksum() {
-  sha1sum - < <({
-    cat "$1"
-    [ ! -z ${2:-} ] && echo "$2"
-  }) | cut -f 1 -d ' '
-}
+# Create the cache directory.
+mkdir -p "$HOME/.mache" &> /dev/null
 
-tmp="$(mktemp)"
-file="$HOME/.mache/$(checksum "$@")"
-
-{
-  mkdir -p ~/.mache &> /dev/null
-  tail -n +2 "$1" > "$tmp"
-  chmod u=rx "$tmp"
-}
-
-[ ! -z ${NOCACHE:-} ] && {
-  $tmp
+# Change string into a file like thing and rerun.
+test -e "$1" || {
+  eval "$0" <(printf "$@")
   exit
 }
 
-#(>&2 printf "mache: %s %s %s\n" "$1" "$2" "$file")
-test -f "$file" || {
-  touch "$file"
-  ($tmp > "$file" && chmod -w "$file") || {
-    >&2 printf "mache: failed\n"
-    rm "$file"
-    exit 1
-  }
+# Remove the mache shebang when a mache script and rerun.
+[ -z "${MACHE_SCRIPT:-}" ] || {
+  file="$1"; shift
+  export MACHE_SCRIPT=""
+  export MACHE_TEMP="" # remake a temp file
+  eval "$0" <(tail -n +2 < "$file") "$@"
+  exit
+}
+
+# Create a temp file and rerun.
+[ ! -z ${MACHE_TEMP:-} ] || {
+  tmp="$(mktemp)"
+  cp "$1" "$tmp"; shift
+  chmod u=rx "$tmp"
+  export MACHE_TEMP=1
+  eval "$0" "$tmp" "$@"
+  exit
+}
+
+# Used to determine if input has been cached before.
+checksum() {
+  local string_array
+  string_array=($(sha1sum - < <({
+    cat "$1"; shift
+    echo "$@"
+  })))
+
+  echo ${string_array[0]}
+}
+
+# The location of the cache file.
+file="$HOME/.mache/$(checksum "$@")"
+
+# Show which file is the cache file when in debug.
+[ ! -z ${DEBUG:-} ] && >&2 printf "mache: %s\n" "$file"
+
+# Remove the cache when REMACHE variable is not empty.
+[ ! -z ${REMACHE:-} ] && rm -f $file 2> /dev/null
+
+# If the cache file exists, respond with the cache and exit
+cat "$file" 2> /dev/null && exit
+
+# Used to determine if the script is a mache script in next run.
+export MACHE_SCRIPT=1
+
+# Prepare the arguments to be passed to the script.
+tmp="$1"; shift
+
+# Run the script and cache the output while writting to stdout. (tee)
+($tmp "$@" > "$tmp.cache" && mv -f "$tmp.cache" "$file" && chmod -w "$file") || {
+  >&2 printf "mache: failed\n"
+  rm -f "$file"
+  >&2 printf "mache: $1\n"
+  exit 1
 }
 
 cat "$file"
