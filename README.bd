@@ -1,3 +1,5 @@
+#!/usr/bin/env barkdown
+
 # Mache
 
 Cache stdout of any process.
@@ -13,31 +15,19 @@ Cache stdout of any process.
 
 Notice how it outputs the same date. It's using the cache.
 
-```bash
 $ mache date
-za 14 mrt 2020  6:19:21 CET
 $ mache date
-za 14 mrt 2020  6:19:21 CET
-```
 
 If we supply different options it will create a new cache.
 
-```bash
 $ mache 'date -d "1 Apr 2020"'
-wo  1 apr 2020  0:00:00 CEST
 $ mache 'date -d "2 Apr 2020"'
-do  2 apr 2020  0:00:00 CEST
-```
 
 You can also provide a script with arguments. This does not require one to
 quote the complete command.
 
-```bash
 $ mache /bin/echo hello
-hello
 $ mache /bin/echo hello world
-hello world
-```
 
 > Notice that it recomputes the cache for both commands separately. This is
 > because the options are not equal.
@@ -45,31 +35,17 @@ hello world
 You can also make a mache script. These scripts will cache by default. Simply
 define the following shebang at the top of that script.
 
-```bash
 $ cat ./t/date
-#!/usr/bin/env mache
-#!/usr/bin/env bash
-
-date "$@"
-```
 
 We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
-```bash
 $ ./t/date
-zo 15 mrt 2020 16:37:52 CET
-```
 
 By default mache will use the cache if present. You can remake the cache:
 
-```bash
 $ REMACHE=1 ./t/date
-zo 15 mrt 2020 16:48:16 CET
 $ sleep 2
-
 $ REMACHE=1 ./t/date
-zo 15 mrt 2020 16:48:18 CET
-```
 
 A mache script does not cache when the script exits with non zero.
 
@@ -84,30 +60,12 @@ the mache script being re-evaluated. [memoization][3]
 Use mache to make backups every week.
 Create a mache script:
 
-```bash
 $ cat $HOME/.bash_backup
-#!/usr/bin/env mache
-#!/usr/bin/env bash
-
-{
-  location="/media/$USER/passport"
-
-  >&2 printf "%s?\n" "$location"
-  read -p "" < /dev/tty
-
-  $HOME/.local/bin/backup "$location"
-} > /dev/null
-
-printf 'echo "Latest Backup: %s\n"' "$(date)"
-```
 
 Also add the following to your `.bashrc`.
 
 
-```bash
 $ grep 'bash_backup' < $HOME/.bashrc
-  $HOME/.bash_backup "$(date +'%V-%G')"
-```
 
 This means that the backup script will be sourced every time the week number
 changes. Otherwise the cache is sourced.
@@ -121,38 +79,16 @@ use. No need to re-download every time the script is run.
 We can define a dependencies.sh and source it in files that depend on that
 script. This project contains an example of that in the tests.
 
-```bash
 $ cat ./t/dependencies.sh
-#!/usr/bin/env mache
-#!/usr/bin/env bash
-
-curl -s https://raw.githubusercontent.com/bas080/bash-tap/83132cc81696a49f4e4c66b126a63bcba0633018/bash-tap
-```
 
 Now for the tests.
 
-```bash
 $ cat ./t/cache.t
-#!/usr/bin/env bash
-
-source <(./t/dependencies.sh)
-
-plan 1
-
-diff <(./t/date) <(sleep 1; ./t/date) | diagnostics
-
-test_success "Fetches the previously cached date."
-```
 
 When running the tests it will run curl only when the cache is not present or
 when REMACHE is defined.
 
-```bash
 $ ./t/cache.t
-1..1
-# 
-ok - Fetches the previously cached date.
-```
 
 Rerunning the tests will result in the cache being used. Changes to the
 dependencies will have mache update the cache.
@@ -160,7 +96,8 @@ dependencies will have mache update the cache.
 ### Installation and Update
 
 Often tools like leiningen and nvm require a bash script to be sourced. One can
-simply use mache to not just install but also update these regularly.
+simply use mache to not just install but also update these regularly. See the
+periodic backup example.
 
 ### Optimization
 
@@ -172,22 +109,9 @@ used thoughtfully.
 
 Tests can be run with Perl's [prove][2] command; or execute a single one:
 
-```bash
 $ ./t/cache.t
-1..1
-# 
-ok - Fetches the previously cached date.
-```
 
-```bash
 $ prove
-t/README.t ... skipped: Do not recur.
-t/cache.t .... ok
-t/nocache.t .. ok
-All tests successful.
-Files=3, Tests=2,  3 wallclock secs ( 0.02 usr  0.00 sys +  0.04 cusr  0.03 csys =  0.09 CPU)
-Result: PASS
-```
 
 ## Known Issues
 

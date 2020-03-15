@@ -69,7 +69,7 @@ tmp="$1"; shift
 ($tmp "$@" > "$tmp.cache" && mv -f "$tmp.cache" "$file" && chmod -w "$file") || {
   >&2 printf "mache: failed\n"
   rm -f "$file"
-  >&2 printf "mache: $1\n"
+  >&2 printf "mache: $tmp\n"
   exit 1
 }
 
