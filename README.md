@@ -15,9 +15,9 @@ Notice how it outputs the same date. It's using the cache.
 
 ```bash
 $ mache date
-za 14 mrt 2020  6:19:21 CET
+zo 15 mrt 2020 16:58:48 CET
 $ mache date
-za 14 mrt 2020  6:19:21 CET
+zo 15 mrt 2020 16:58:48 CET
 ```
 
 If we supply different options it will create a new cache.
@@ -57,18 +57,18 @@ We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
 ```bash
 $ ./t/date
-zo 15 mrt 2020 16:37:52 CET
+zo 15 mrt 2020 16:58:57 CET
 ```
 
 By default mache will use the cache if present. You can remake the cache:
 
 ```bash
 $ REMACHE=1 ./t/date
-zo 15 mrt 2020 16:48:16 CET
+zo 15 mrt 2020 16:59:39 CET
 $ sleep 2
 
 $ REMACHE=1 ./t/date
-zo 15 mrt 2020 16:48:18 CET
+zo 15 mrt 2020 16:59:41 CET
 ```
 
 A mache script does not cache when the script exits with non zero.
@@ -160,7 +160,8 @@ dependencies will have mache update the cache.
 ### Installation and Update
 
 Often tools like leiningen and nvm require a bash script to be sourced. One can
-simply use mache to not just install but also update these regularly.
+simply use mache to not just install but also update these regularly. See the
+periodic backup example.
 
 ### Optimization
 
@@ -181,11 +182,12 @@ ok - Fetches the previously cached date.
 
 ```bash
 $ prove
-t/README.t ... skipped: Do not recur.
-t/cache.t .... ok
-t/nocache.t .. ok
+t/README.t ...... skipped: Do not recur.
+t/cache.t ....... ok
+t/nocache.t ..... ok
+t/shellcheck.t .. ok
 All tests successful.
-Files=3, Tests=2,  3 wallclock secs ( 0.02 usr  0.00 sys +  0.04 cusr  0.03 csys =  0.09 CPU)
+Files=4, Tests=3,  2 wallclock secs ( 0.03 usr  0.00 sys +  0.10 cusr  0.05 csys =  0.18 CPU)
 Result: PASS
 ```
 
