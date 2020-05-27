@@ -8,6 +8,7 @@ Cache stdout of any process.
 - Will re-cache when the contents of the script changes or the arguments
   supplied to it change.
 - Has a REMACHE variable which will refresh your caches.
+- Define the cache file with MACHE_TARGET. Handy when doing builds.
 
 ## Usage
 
@@ -15,9 +16,9 @@ Notice how it outputs the same date. It's using the cache.
 
 ```bash
 $ mache date
-zo 15 mrt 2020 16:58:48 CET
+di 17 mrt 2020 17:13:47 CET
 $ mache date
-zo 15 mrt 2020 16:58:48 CET
+di 17 mrt 2020 17:13:47 CET
 ```
 
 If we supply different options it will create a new cache.
@@ -57,18 +58,18 @@ We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
 ```bash
 $ ./t/date
-zo 15 mrt 2020 16:58:57 CET
+wo 27 mei 2020 14:03:37 CEST
 ```
 
 By default mache will use the cache if present. You can remake the cache:
 
 ```bash
 $ REMACHE=1 ./t/date
-zo 15 mrt 2020 16:59:39 CET
+wo 27 mei 2020 14:15:25 CEST
 $ sleep 2
 
 $ REMACHE=1 ./t/date
-zo 15 mrt 2020 16:59:41 CET
+wo 27 mei 2020 14:15:27 CEST
 ```
 
 A mache script does not cache when the script exits with non zero.
@@ -102,7 +103,6 @@ printf 'echo "Latest Backup: %s\n"' "$(date)"
 ```
 
 Also add the following to your `.bashrc`.
-
 
 ```bash
 $ grep 'bash_backup' < $HOME/.bashrc
@@ -168,6 +168,11 @@ periodic backup example.
 Caches can help increase the performance considerably. It should however be
 used thoughtfully.
 
+### Bundling/Building files
+
+Mache can be used to bundle/build files of a project. You can define the
+`MACHE_TARGET` variable. In that case it writes the outputs of the mache script
+to that file.
 
 ## Tests
 
@@ -178,16 +183,15 @@ $ ./t/cache.t
 1..1
 # 
 ok - Fetches the previously cached date.
-```
 
-```bash
 $ prove
-t/README.t ...... skipped: Do not recur.
-t/cache.t ....... ok
-t/nocache.t ..... ok
-t/shellcheck.t .. ok
+t/README.t ....... skipped: Do not recur.
+t/cache.t ........ ok
+t/machetarget.t .. ok
+t/nocache.t ...... ok
+t/shellcheck.t ... ok
 All tests successful.
-Files=4, Tests=3,  2 wallclock secs ( 0.03 usr  0.00 sys +  0.10 cusr  0.05 csys =  0.18 CPU)
+Files=5, Tests=5,  3 wallclock secs ( 0.02 usr  0.01 sys +  0.16 cusr  0.05 csys =  0.24 CPU)
 Result: PASS
 ```
 
@@ -201,7 +205,7 @@ Result: PASS
 
 Generating the documentation requires [barkdown][4].
 
-`$ ./README.bd > ./README.md`
+`./README.bd > ./README.md`
 
 ## License
 

@@ -10,24 +10,31 @@ Cache stdout of any process.
 - Will re-cache when the contents of the script changes or the arguments
   supplied to it change.
 - Has a REMACHE variable which will refresh your caches.
+- Define the cache file with MACHE_TARGET. Handy when doing builds.
 
 ## Usage
 
 Notice how it outputs the same date. It's using the cache.
 
+```bash
 $ mache date
 $ mache date
+```
 
 If we supply different options it will create a new cache.
 
+```bash
 $ mache 'date -d "1 Apr 2020"'
 $ mache 'date -d "2 Apr 2020"'
+```
 
 You can also provide a script with arguments. This does not require one to
 quote the complete command.
 
+```bash
 $ mache /bin/echo hello
 $ mache /bin/echo hello world
+```
 
 > Notice that it recomputes the cache for both commands separately. This is
 > because the options are not equal.
@@ -35,17 +42,23 @@ $ mache /bin/echo hello world
 You can also make a mache script. These scripts will cache by default. Simply
 define the following shebang at the top of that script.
 
+```bash
 $ cat ./t/date
+```
 
 We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
+```bash
 $ ./t/date
+```
 
 By default mache will use the cache if present. You can remake the cache:
 
+```bash
 $ REMACHE=1 ./t/date
 $ sleep 2
 $ REMACHE=1 ./t/date
+```
 
 A mache script does not cache when the script exits with non zero.
 
@@ -60,12 +73,15 @@ the mache script being re-evaluated. [memoization][3]
 Use mache to make backups every week.
 Create a mache script:
 
+```bash
 $ cat $HOME/.bash_backup
+```
 
 Also add the following to your `.bashrc`.
 
-
+```bash
 $ grep 'bash_backup' < $HOME/.bashrc
+```
 
 This means that the backup script will be sourced every time the week number
 changes. Otherwise the cache is sourced.
@@ -79,16 +95,22 @@ use. No need to re-download every time the script is run.
 We can define a dependencies.sh and source it in files that depend on that
 script. This project contains an example of that in the tests.
 
+```bash
 $ cat ./t/dependencies.sh
+```
 
 Now for the tests.
 
+```bash
 $ cat ./t/cache.t
+```
 
 When running the tests it will run curl only when the cache is not present or
 when REMACHE is defined.
 
+```bash
 $ ./t/cache.t
+```
 
 Rerunning the tests will result in the cache being used. Changes to the
 dependencies will have mache update the cache.
@@ -104,14 +126,21 @@ periodic backup example.
 Caches can help increase the performance considerably. It should however be
 used thoughtfully.
 
+### Bundling/Building files
+
+Mache can be used to bundle/build files of a project. You can define the
+`MACHE_TARGET` variable. In that case it writes the outputs of the mache script
+to that file.
 
 ## Tests
 
 Tests can be run with Perl's [prove][2] command; or execute a single one:
 
+```bash
 $ ./t/cache.t
 
 $ prove
+```
 
 ## Known Issues
 
@@ -123,7 +152,7 @@ $ prove
 
 Generating the documentation requires [barkdown][4].
 
-`$ ./README.bd > ./README.md`
+`./README.bd > ./README.md`
 
 ## License
 

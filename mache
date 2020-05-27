@@ -48,7 +48,7 @@ checksum() {
 }
 
 # The location of the cache file.
-file="$HOME/.mache/$(checksum "$@")"
+file="${MACHE_TARGET:-$HOME/.mache/$(checksum "$@")}"
 
 # Show which file is the cache file when in debug.
 [ ! -z "${DEBUG:-}" ] && >&2 printf 'mache: %s\n' "$file"
