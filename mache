@@ -13,7 +13,8 @@ mkdir -p "$HOME/.mache" &> /dev/null
 
 # Change string into a file like thing and rerun.
 test -e "$1" || {
-  eval "$0" <(echo "$@")
+  comm="$1"; shift
+  eval "$0" <(echo "$comm") "$@"
   exit
 }
 
