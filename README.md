@@ -16,15 +16,17 @@ Notice how it outputs the same date. It's using the cache.
 
 ```bash
 $ mache date
-di 17 mrt 2020 17:13:47 CET
+wo 24 feb 2021 17:00:58 CET
+$ sleep 2
+
 $ mache date
-di 17 mrt 2020 17:13:47 CET
+wo 24 feb 2021 17:00:58 CET
 ```
 
 If we supply different options it will create a new cache.
 
 ```bash
-$ mache 'date -d "1 Apr 2020"'
+$ mache 'date -d "1 Apr 2020"' # TODO: try to not require quoting
 wo  1 apr 2020  0:00:00 CEST
 $ mache 'date -d "2 Apr 2020"'
 do  2 apr 2020  0:00:00 CEST
@@ -58,18 +60,18 @@ We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
 ```bash
 $ ./t/date
-wo 27 mei 2020 14:03:37 CEST
+wo 24 feb 2021 17:00:47 CET
 ```
 
 By default mache will use the cache if present. You can remake the cache:
 
 ```bash
-$ REMACHE=1 ./t/date
-wo 27 mei 2020 14:15:25 CEST
+$ ./t/date
+wo 24 feb 2021 17:00:47 CET
 $ sleep 2
 
 $ REMACHE=1 ./t/date
-wo 27 mei 2020 14:15:27 CEST
+wo 24 feb 2021 17:01:02 CET
 ```
 
 A mache script does not cache when the script exits with non zero.
@@ -90,23 +92,30 @@ $ cat $HOME/.bash_backup
 #!/usr/bin/env mache
 #!/usr/bin/env bash
 
+#TODO: fix the exit status of the backup command
+
+set -e
+
 {
   location="/media/$USER/passport"
 
-  >&2 printf "%s?\n" "$location"
-  read -p "" < /dev/tty
+  while [[ ! -d "$location" ]]; do
+    >&2 printf "%s?\n" "$location"
+    read -p "" < /dev/tty
+  done
 
   $HOME/.local/bin/backup "$location"
-} > /dev/null
+} >&2
 
-printf 'echo "Latest Backup: %s\n"' "$(date)"
+
+printf 'echo "Latest Backup: %s"\n' "$(date)"
 ```
 
 Also add the following to your `.bashrc`.
 
 ```bash
 $ grep 'bash_backup' < $HOME/.bashrc
-  $HOME/.bash_backup "$(date +'%V-%G')"
+  source <($HOME/.bash_backup "$(date +'%V-%G')")
 ```
 
 This means that the backup script will be sourced every time the week number
@@ -135,6 +144,7 @@ Now for the tests.
 $ cat ./t/cache.t
 #!/usr/bin/env bash
 
+# shellcheck source=t/dependencies.sh
 source <(./t/dependencies.sh)
 
 plan 1
@@ -179,19 +189,19 @@ to that file.
 Tests can be run with Perl's [prove][2] command; or execute a single one:
 
 ```bash
-$ ./t/cache.t
+$ ./t/cache.t # run single test
 1..1
 # 
 ok - Fetches the previously cached date.
 
-$ prove
-t/README.t ....... skipped: Do not recur.
+$ prove # run all tests
 t/cache.t ........ ok
 t/machetarget.t .. ok
 t/nocache.t ...... ok
+t/printf.t ....... ok
 t/shellcheck.t ... ok
 All tests successful.
-Files=5, Tests=5,  3 wallclock secs ( 0.02 usr  0.01 sys +  0.16 cusr  0.05 csys =  0.24 CPU)
+Files=5, Tests=7,  2 wallclock secs ( 0.04 usr  0.00 sys +  0.17 cusr  0.03 csys =  0.24 CPU)
 Result: PASS
 ```
 
@@ -206,6 +216,11 @@ Result: PASS
 Generating the documentation requires [barkdown][4].
 
 `./README.bd > ./README.md`
+
+## Roadmap
+
+[ ] Use some sort of temporary filesystem for high read and write speeds.
+https://docs.oracle.com/cd/E19683-01/817-3814/6mjcp0r0l/index.html
 
 ## License
 

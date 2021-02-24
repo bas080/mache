@@ -14,7 +14,11 @@ mkdir -p "$HOME/.mache" &> /dev/null
 # Change string into a file like thing and rerun.
 test -e "$1" || {
   comm="$1"; shift
-  eval "$0" <(echo "$comm") "$@"
+  eval "$0" <({
+    xargs -l -d '\n' printf '# %s\n' <<< "$*"
+    # shellcheck disable=SC2059
+    printf "$comm\n" "$@"
+  })
   exit
 }
 
@@ -66,13 +70,14 @@ export MACHE_SCRIPT=1
 # Prepare the arguments to be passed to the script.
 tmp="$1"; shift
 
-# Run the script and cache the output while writting to stdout. (tee)
+# Run the script and cache the output.
 ($tmp "$@" > "$tmp.cache" && mv -f "$tmp.cache" "$file" && chmod -w "$file") || {
+  code="$?"
   >&2 printf 'mache: failed\n'
   rm -f "$file"
   >&2 printf 'mache: %s\n' "$tmp"
-  exit 1
+  exit "$code" # Consider removing because of script exiting on error
 }
 
 cat "$file"
-rm -f "$tmp"
+rm -f "$tmp" # Remove the tmp script if running and caching was a success.

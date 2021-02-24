@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# shellcheck source=t/dependencies.sh
 source <(./t/dependencies.sh)
 
 plan 1

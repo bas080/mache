@@ -18,13 +18,14 @@ Notice how it outputs the same date. It's using the cache.
 
 ```bash
 $ mache date
+$ sleep 2
 $ mache date
 ```
 
 If we supply different options it will create a new cache.
 
 ```bash
-$ mache 'date -d "1 Apr 2020"'
+$ mache 'date -d "1 Apr 2020"' # TODO: try to not require quoting
 $ mache 'date -d "2 Apr 2020"'
 ```
 
@@ -55,7 +56,7 @@ $ ./t/date
 By default mache will use the cache if present. You can remake the cache:
 
 ```bash
-$ REMACHE=1 ./t/date
+$ ./t/date
 $ sleep 2
 $ REMACHE=1 ./t/date
 ```
@@ -137,9 +138,9 @@ to that file.
 Tests can be run with Perl's [prove][2] command; or execute a single one:
 
 ```bash
-$ ./t/cache.t
+$ ./t/cache.t # run single test
 
-$ prove
+$ prove # run all tests
 ```
 
 ## Known Issues
@@ -153,6 +154,11 @@ $ prove
 Generating the documentation requires [barkdown][4].
 
 `./README.bd > ./README.md`
+
+## Roadmap
+
+[ ] Use some sort of temporary filesystem for high read and write speeds.
+https://docs.oracle.com/cd/E19683-01/817-3814/6mjcp0r0l/index.html
 
 ## License
 
