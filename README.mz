@@ -102,6 +102,7 @@ Generating the documentation requires [markatzea][markatzea].
 - [ ] Use some sort of temporary filesystem for high read and write speeds.
       https://docs.oracle.com/cd/E19683-01/817-3814/6mjcp0r0l/index.html
 - [ ] Consider having different cache for different STDIN.
+- [ ] Consider having flock be separate from mache command.
 
 ## License
 
