@@ -9,7 +9,7 @@
 set -Eeuo pipefail
 
 # Create the cache directory.
-mkdir -p "$HOME/.mache" &> /dev/null
+mkdir -p "$HOME/.mache"
 
 # Change string into a file like thing and rerun.
 test -e "$1" || {
@@ -32,7 +32,7 @@ test -e "$1" || {
 }
 
 # Create a temp file and rerun.
-[ ! -z ${MACHE_TEMP:-} ] || {
+[ -n "${MACHE_TEMP:-}" ] || {
   tmp="$(mktemp)"
   cp "$1" "$tmp"; shift
   chmod u=rx "$tmp"
@@ -44,22 +44,23 @@ test -e "$1" || {
 # Used to determine if input has been cached before.
 checksum() {
   local string_array
-  string_array=($(sha1sum - < <({
+  string_array="$(sha1sum - < <({
     cat "$1"; shift
     echo "$@"
-  })))
+  }))"
 
-  echo "${string_array[0]}"
+  echo "${string_array[0]}" | cut -f 1 -d ' '
 }
 
 # The location of the cache file.
 file="${MACHE_TARGET:-$HOME/.mache/$(checksum "$@")}"
+lock="$file.lock"
 
 # Show which file is the cache file when in debug.
-[ ! -z "${DEBUG:-}" ] && >&2 printf 'mache: %s\n' "$file"
+[ -n "${DEBUG:-}" ] && >&2 printf 'mache: %s\n' "$file"
 
 # Remove the cache when REMACHE variable is not empty.
-[ ! -z "${REMACHE:-}" ] && rm -f "$file" 2> /dev/null
+[ -n "${REMACHE:-}" ] && rm -f "$file" 2> /dev/null
 
 # If the cache file exists, respond with the cache and exit
 cat "$file" 2> /dev/null && exit
@@ -71,7 +72,7 @@ export MACHE_SCRIPT=1
 tmp="$1"; shift
 
 # Run the script and cache the output.
-($tmp "$@" > "$tmp.cache" && mv -f "$tmp.cache" "$file" && chmod -w "$file") || {
+(flock -n "$lock" -c "$tmp" "$@" > "$tmp.cache" && mv -f "$tmp.cache" "$file" && chmod -w "$file") || {
   code="$?"
   >&2 printf 'mache: failed\n'
   rm -f "$file"
