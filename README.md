@@ -15,7 +15,7 @@ Cache stdout of any process.
 
 Notice how it outputs the same date. It's using the cache.
 
-```bash bash
+```bash
 mache date
 sleep 2
 mache date
@@ -27,7 +27,7 @@ za 25 mrt 2023 19:25:50 CET
 
 If we supply different options it will create a new cache.
 
-```bash bash
+```bash
 mache 'date -d "1 Apr 2020"'
 mache 'date -d "2 Apr 2020"'
 ```
@@ -39,7 +39,7 @@ do  2 apr 2020  0:00:00 CEST
 You can also provide a script with arguments. This does not require one to
 quote the complete command.
 
-```bash bash
+```bash
 mache /bin/echo hello
 mache /bin/echo hello world
 ```
@@ -53,7 +53,7 @@ hello world
 
 Use printf style formatting.
 
-```bash bash
+```bash
 mache 'echo "%s"' hello world
 mache 'echo "%s"' 'hello world'
 ```
@@ -66,7 +66,7 @@ hello world
 You can also make a mache script. These scripts will cache by default. Simply
 define the following shebang at the top of that script.
 
-```bash bash
+```bash
 cat ./t/date
 ```
 ```
@@ -78,23 +78,23 @@ date "$@"
 
 We can now run that script assuming you made it executable. (chmod +x ./t/date)
 
-```bash bash
+```bash
 ./t/date
 ```
 ```
-za 25 mrt 2023 20:21:30 CET
+vr 24 mei 2024 14:13:28 CEST
 ```
 
 By default mache will use the cache if present. You can remake the cache:
 
-```bash bash
+```bash
 ./t/date
 sleep 2
 REMACHE=1 ./t/date
 ```
 ```
-za 25 mrt 2023 20:21:30 CET
-za 25 mrt 2023 20:24:34 CET
+vr 24 mei 2024 14:13:28 CEST
+vr 24 mei 2024 14:13:38 CEST
 ```
 
 A mache script does not cache when the script exits with non zero.
@@ -105,11 +105,11 @@ the mache script being re-evaluated. [memoization][memoization]
 
 ## Tests
 
-> Requires [bash-tap][bash-tap] to be installed.
+> Requires [bash-tap][bash-tap] to be downloaded and on the `$PATH`.
 
 Tests can be run with Perl's [prove][prove] command; or execute a single one:
 
-```bash bash
+```bash
 ./t/printf.t # run single test
 
 prove # run all tests
@@ -122,7 +122,7 @@ t/machetarget.t .. ok
 t/printf.t ....... ok
 t/shellcheck.t ... ok
 All tests successful.
-Files=3, Tests=5,  1 wallclock secs ( 0.01 usr  0.00 sys +  0.05 cusr  0.02 csys =  0.08 CPU)
+Files=3, Tests=5,  1 wallclock secs ( 0.02 usr  0.00 sys +  0.08 cusr  0.00 csys =  0.10 CPU)
 Result: PASS
 ```
 
@@ -143,6 +143,7 @@ Generating the documentation requires [markatzea][markatzea].
 - [ ] Use some sort of temporary filesystem for high read and write speeds.
       https://docs.oracle.com/cd/E19683-01/817-3814/6mjcp0r0l/index.html
 - [ ] Consider having different cache for different STDIN.
+- [ ] Consider having flock be separate from mache command.
 
 ## License
 
